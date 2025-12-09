@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>予定管理</title>
+
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #fafafa;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 22px;
+        margin-top: 40px;
+        margin-bottom: 15px;
+        padding-left: 6px;
+    }
+
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 10px;
+        margin-bottom: 16px;
+    }
+
+    .title-center {
+        text-align: center;
+        flex: 1;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .edit-name-btn {
+        font-size: 15px;
+        color: black;
+        text-decoration: underline;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .section-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+        padding-left: 18px; /* ← 少し右にズラした */
+        font-weight: 600;
+    }
+
+    .form-box {
+        background: white;
+        padding: 16px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        margin-bottom: 12px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background: #333;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .event-card {
+        background: white;
+        padding: 16px;
+        border-radius: 14px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 17px;
+        margin-bottom: 6px;
+    }
+
+    .event-title {
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .event-sub {
+        color: #555;
+        font-size: 14px;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .btn-join {
+        flex: 1;
+        background: #007aff;
+    }
+
+    .btn-cancel {
+        flex: 1;
+        background: #ff3b30;
+    }
+
+    /* ポップアップ */
+    #popup {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 14px 22px;
+        border-radius: 10px;
+        display: none;
+        z-index: 9999;
+        font-size: 16px;
+    }
+
+</style>
+</head>
+<body>
+
+<div id="popup"></div>
+
+<div class="header-row">
+    <div class="title-center">飯行く日</div>
+    <div class="edit-name-btn" onclick="openNameEdit()">表示名修正</div>
+</div>
+
+<!-- 表示名入力ページ（初回のみ表示） -->
+<div id="nameSetupPage" style="display:none;">
+    <h2>表示名を入力</h2>
+    <div class="form-box">
+        <input id="displayNameInput" placeholder="例：山田" />
+        <button onclick="saveDisplayName()">保存</button>
+    </div>
+</div>
+
+<!-- 表示名変更ページ -->
+<div id="nameEditPage" style="display:none;">
+    <h2>表示名を修正</h2>
+    <div class="form-box">
+        <input id="editNameInput" />
+        <button onclick="updateDisplayName()">変更</button>
+    </div>
+</div>
+
+<!-- メインページ -->
+<div id="mainPage">
+
+    <h2 class="section-title">新しく追加</h2>
+    <div class="form-box">
+        <input type="text" id="newTitle" placeholder="タイトル（例：中学同窓会）" />
+        <select id="newPlace">
+            <option value="橋本">橋本</option>
+            <option value="大阪">大阪</option>
+            <option value="京都">京都</option>
+            <option value="どこでも">どこでも</option>
+        </select>
+        <input type="date" id="newDate" />
+        <select id="newTime">
+            <option value="昼">昼</option>
+            <option value="夕方">夕方</option>
+            <option value="夜">夜</option>
+        </select>
+        <button onclick="createEvent()">作成して参加</button>
+    </div>
+
+    <h2 class="section-title">進行中</h2>
+    <div id="eventList"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://agbfcpaxsrgebxjtkvdh.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnYmZjcGF4c3JnZWJ4anRrdmRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxODY4ODAsImV4cCI6MjA4MDc2Mjg4MH0.8Mp6MotCT5z2rTd0iIWhXz3aV696ijBEkYk9tVIYpgw";
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ---------- 初期表示 ---------- */
+window.onload = async () => {
+    const name = localStorage.getItem("displayName");
+    if (!name) {
+        document.getElementById("nameSetupPage").style.display = "block";
+        return;
+    }
+    loadEvents();
+};
+
+/* ----------- ポップアップ ---------- */
+function showPopup(msg) {
+    const p = document.getElementById("popup");
+    p.innerText = msg;
+    p.style.display = "block";
+    setTimeout(() => { p.style.display = "none"; }, 1500);
+}
+
+/* ----------- 表示名保存 ---------- */
+function saveDisplayName() {
+    const name = document.getElementById("displayNameInput").value.trim();
+    if (!name) return;
+
+    localStorage.setItem("displayName", name);
+
+    document.getElementById("nameSetupPage").style.display = "none";
+    loadEvents();
+}
+
+/* ----------- 表示名修正 ---------- */
+function openNameEdit() {
+    const current = localStorage.getItem("displayName") || "";
+    document.getElementById("editNameInput").value = current;
+
+    document.getElementById("mainPage").style.display = "none";
+    document.getElementById("nameEditPage").style.display = "block";
+}
+
+function updateDisplayName() {
+    const name = document.getElementById("editNameInput").value.trim();
+    if (!name) return;
+
+    localStorage.setItem("displayName", name);
+
+    document.getElementById("nameEditPage").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+
+    showPopup("名前を変更しました");
+}
+
+/* ----------- イベント作成 ---------- */
+async function createEvent() {
+    const title = document.getElementById("newTitle").value.trim();
+    const place = document.getElementById("newPlace").value;
+    const date = document.getElementById("newDate").value;
+    const time = document.getElementById("newTime").value;
+    const name = localStorage.getItem("displayName");
+
+    if (!title || !date || !name) return;
+
+    const { error } = await supabase.from("events").insert({
+        title,
+        place,
+        date,
+        time,
+        members: [name]
+    });
+
+    if (!error) {
+        showPopup("追加しました");
+        setTimeout(() => location.reload(), 800);
+    }
+}
+
+/* ----------- 参加/取り消し ---------- */
+async function toggleJoin(eventData, join) {
+    const name = localStorage.getItem("displayName");
+    let members = eventData.members || [];
+
+    if (join) {
+        if (!members.includes(name)) members.push(name);
+    } else {
+        members = members.filter(m => m !== name);
+    }
+
+    const { error } = await supabase
+        .from("events")
+        .update({ members })
+        .eq("id", eventData.id);
+
+    if (!error) {
+        showPopup("変更しました");
+        setTimeout(() => location.reload(), 500);
+    }
+}
+
+/* ----------- イベント一覧 ---------- */
+async function loadEvents() {
+    const { data } = await supabase.from("events").select("*").order("id", { ascending: false });
+
+    const list = document.getElementById("eventList");
+    list.innerHTML = "";
+
+    data.forEach(ev => {
+        const isJoined = (ev.members || []).includes(localStorage.getItem("displayName"));
+
+        list.innerHTML += `
+            <div class="event-card">
+                <div class="event-header">
+                    <div class="event-title">${ev.title} 📝</div>
+                </div>
+                <div class="event-sub">${ev.date} / ${ev.time} / ${ev.place}</div>
+
+                <div class="event-sub">参加者：${(ev.members || []).join("、")}</div>
+
+                <div class="btn-row">
+                    <button class="btn-join" onclick="toggleJoin(${JSON.stringify(ev)}, true)">参加</button>
+                    <button class="btn-cancel" onclick="toggleJoin(${JSON.stringify(ev)}, false)">取り消し</button>
+                </div>
+            </div>
+        `;
+    });
+}
+</script>
+</body>
+</html>
