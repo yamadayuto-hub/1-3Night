@@ -87,18 +87,78 @@ const KEY = "my_vote_2025";
 
 const SHOPS = [
   // 橋本
-  {id:"kirin", area:"橋本", name:"きりん", address:"〒648-0096 和歌山県橋本市御幸辻１３５−１"},
-  {id:"kakiemon", area:"橋本", name:"柿右エ門", address:"〒648-0075 和歌山県橋本市さつき台１丁目４７８−１６"},
-  {id:"shimakura", area:"橋本", name:"BAR SHIMAKURA", address:"〒648-0025 和歌山県橋本市向副１００１"},
+  {
+    id:"kirin",
+    area:"橋本",
+    name:"きりん",
+    address:"〒648-0096 和歌山県橋本市御幸辻１３５−１",
+    map:"https://maps.app.goo.gl/mm8BJHzULNYnnMS37?g_st=ic"
+  },
+  {
+    id:"mikura",
+    area:"橋本",
+    name:"海鮮ダイニング 美蔵 ホテルルートイン橋本店",
+    address:"〒648-0073 和歌山県橋本市市脇４丁目１０−２８",
+    map:"https://maps.app.goo.gl/2HxXb64kuGyFZfA98?g_st=ic"
+  },
+  {
+    id:"shimakura",
+    area:"橋本",
+    name:"BAR SHIMAKURA",
+    address:"〒648-0025 和歌山県橋本市向副１００１",
+    map:"https://maps.app.goo.gl/sgoN33vuL3pY7S9b6?g_st=ic"
+  },
 
   // 大阪
-  {id:"ajito", area:"大阪", name:"DININGあじと", address:"〒542-0075 大阪府大阪市中央区難波千日前４−２０"},
-  {id:"jutchuhakku", area:"大阪", name:"みなみの十忠八九", address:"〒542-0076 大阪府大阪市中央区難波４丁目２−６ トシヒサビル 1F・2F"},
-  {id:"hachimaru", area:"大阪", name:"ハチマル蒲鉾 なんば千日前店", address:"〒542-0074 大阪府大阪市中央区千日前２丁目３−３３"},
-  {id:"sasaya", area:"大阪", name:"備長炭やきとり 笹屋", address:"〒542-0074 大阪府大阪市中央区千日前１丁目８−１０"},
-  {id:"standfuji", area:"大阪", name:"スタンドふじ 本店", address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目５−１ ルシアスビル B１F"},
-  {id:"tenpan", area:"大阪", name:"サカナのめしや 天端", address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目６−１ ヴィアあべのウォーク 1F 121"},
-  {id:"jiraku", area:"大阪", name:"なにわ 而楽", address:"〒530-0012 大阪府大阪市北区芝田２丁目８−１１ 1階"}
+  {
+    id:"ajito",
+    area:"大阪",
+    name:"DINING あじと",
+    address:"〒542-0075 大阪府大阪市中央区難波千日前４−２０",
+    map:"https://maps.app.goo.gl/BycFBdmiifcyrqmJA?g_st=ic"
+  },
+  {
+    id:"jutchuhakku",
+    area:"大阪",
+    name:"みなみの十忠八九",
+    address:"〒542-0076 大阪府大阪市中央区難波４丁目２−６ トシヒサビル 1F・2F",
+    map:"https://maps.app.goo.gl/ioRoMH4eQ4NpqqJA7?g_st=ic"
+  },
+  {
+    id:"hachimaru",
+    area:"大阪",
+    name:"ハチマル蒲鉾 なんば千日前店",
+    address:"〒542-0074 大阪府大阪市中央区千日前２丁目３−３３",
+    map:"https://maps.app.goo.gl/sJjjkxvvJbgP4WWx6?g_st=ic"
+  },
+  {
+    id:"sasaya",
+    area:"大阪",
+    name:"備長炭やきとり 笹屋",
+    address:"〒542-0074 大阪府大阪市中央区千日前１丁目８−１０",
+    map:"https://maps.app.goo.gl/yWGcjjNDbmc6Y2pdA?g_st=ic"
+  },
+  {
+    id:"standfuji",
+    area:"大阪",
+    name:"スタンドふじ 本店",
+    address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目５−１ ルシアスビル B１F",
+    map:"https://maps.app.goo.gl/EVydRo8XDyohRy8r7?g_st=ic"
+  },
+  {
+    id:"tenma",
+    area:"大阪",
+    name:"サカナのめしや 天満",
+    address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目６−１ ヴィアあべのウォーク 1F 121",
+    map:"https://maps.app.goo.gl/WYthW7YmEkxJ416M8?g_st=ic"
+  },
+  {
+    id:"jiraku",
+    area:"大阪",
+    name:"なにわ 而楽",
+    address:"〒530-0012 大阪府大阪市北区芝田２丁目８−１１ 1階",
+    map:"https://maps.app.goo.gl/LHecAF9ep6fWXn9y6?g_st=ic"
+  }
 ];
 
 const votes = {};
@@ -137,7 +197,6 @@ function render(){
 
   [...top, ...rest].forEach(s=>{
     const mine = localStorage.getItem(KEY) === s.id;
-    const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}`;
 
     el.insertAdjacentHTML("beforeend",`
       <div class="card">
@@ -146,13 +205,13 @@ function render(){
           <div class="count">${s.count}票</div>
         </div>
 
-        <a class="address" href="${mapLink}" target="_blank">
+        <a class="address" href="${s.map}" target="_blank">
           ${s.address}
         </a>
 
         <div class="actions">
           <button class="${mine?"cancel":""}" onclick="vote('${s.id}')">
-            ${mine ? "取消す" : "👍 投票する"}
+            ${mine ? "取り消す" : "👍 投票する"}
           </button>
         </div>
       </div>
