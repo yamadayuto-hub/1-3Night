@@ -1,164 +1,180 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>25年忘年会 投票</title>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background:#f5f5f5;
   margin:0;
   padding:16px;
-  background:#fafafa;
 }
-h2{margin-top:40px;}
-.card{
+h1 {
+  text-align:center;
+}
+.card {
   background:#fff;
   border-radius:12px;
   padding:12px;
-  margin-bottom:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  margin-bottom:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
-.vote{
+iframe {
+  width:100%;
+  height:220px;
+  border:0;
+  border-radius:8px;
+}
+.vote {
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-top:8px;
 }
-button{
-  padding:10px 16px;
+button {
+  background:#007aff;
+  color:#fff;
   border:none;
   border-radius:20px;
-  background:#000;
-  color:#fff;
+  padding:8px 14px;
   font-size:14px;
 }
-.count{
-  font-size:14px;
+button.cancel {
+  background:#999;
 }
-iframe{
-  width:100%;
-  height:220px;
-  border:0;
-  border-radius:10px;
+.count {
+  font-weight:bold;
+}
+.section {
+  margin:24px 0 8px;
+  font-weight:bold;
+}
+.crown {
+  margin-left:6px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🍻 25年忘年会 店投票</h1>
+<h1>🍺 25年忘年会 投票</h1>
+<div id="shops"></div>
 
-<h2>🔵 橋本</h2>
-
-<div class="card" data-shop="kirin">
-  <h3>きりん</h3>
-  <iframe src="【ここにGoogleマップ埋め込みURL】"></iframe>
-  <div class="vote">
-    <button onclick="vote('kirin')">👍 投票</button>
-    <span class="count" id="kirin">0 票</span>
-  </div>
-</div>
-
-<div class="card" data-shop="mikura">
-  <h3>美蔵</h3>
-  <iframe src="【MAP】"></iframe>
-  <div class="vote">
-    <button onclick="vote('mikura')">👍 投票</button>
-    <span class="count" id="mikura">0 票</span>
-  </div>
-</div>
-
-<div class="card" data-shop="kakiemon">
-  <h3>柿右エ門</h3>
-  <iframe src="【MAP】"></iframe>
-  <div class="vote">
-    <button onclick="vote('kakiemon')">👍 投票</button>
-    <span class="count" id="kakiemon">0 票</span>
-  </div>
-</div>
-
-<div class="card" data-shop="shimakura">
-  <h3>BAR SHIMAKURA</h3>
-  <iframe src="【MAP】"></iframe>
-  <div class="vote">
-    <button onclick="vote('shimakura')">👍 投票</button>
-    <span class="count" id="shimakura">0 票</span>
-  </div>
-</div>
-
-<h2>🔴 大阪</h2>
-
-<div class="card" data-shop="jutchuhakku">
-  <h3>十忠八九</h3>
-  <iframe src="【MAP】"></iframe>
-  <div class="vote">
-    <button onclick="vote('jutchuhakku')">👍 投票</button>
-    <span class="count" id="jutchuhakku">0 票</span>
-  </div>
-</div>
-
-<div class="card" data-shop="hachimaru">
-  <h3>ハチマル蒲鉾</h3>
-  <iframe src="【MAP】"></iframe>
-  <div class="vote">
-    <button onclick="vote('hachimaru')">👍 投票</button>
-    <span class="count" id="hachimaru">0 票</span>
-  </div>
-</div>
-
-<div class="card" data-shop="sasaya">
-  <h3>笹屋</h3>
-  <iframe src="【MAP】"></iframe>
-  <div class="vote">
-    <button onclick="vote('sasaya')">👍 投票</button>
-    <span class="count" id="sasaya">0 票</span>
-  </div>
-</div>
-
-<div class="card" data-shop="ajito">
-  <h3>DINING あじと</h3>
-  <iframe src="【MAP】"></iframe>
-  <div class="vote">
-    <button onclick="vote('ajito')">👍 投票</button>
-    <span class="count" id="ajito">0 票</span>
-  </div>
-</div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// 🔥 Firebase 設定（ここ差し替え）
+/* 🔑 Firebase Config（あなたのやつ） */
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyAtMj5B1vPwvNfvRu1UOyPArSao-rHs_Vw",
+  authDomain: "night-4be0e.firebaseapp.com",
+  projectId: "night-4be0e",
+  storageBucket: "night-4be0e.firebasestorage.app",
+  messagingSenderId: "128727919874",
+  appId: "1:128727919874:web:0798a05e46931df554661b"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 初期化
-const shops = [
-  "kirin","mikura","kakiemon","shimakura",
-  "jutchuhakku","hachimaru","sasaya","ajito"
+/* 🏮 店舗 */
+const SHOPS = [
+  // 橋本
+  {id:"kirin", name:"きりん", area:"橋本", map:"https://www.google.com/maps?q=きりん+橋本&output=embed"},
+  {id:"kakiemon", name:"柿右エ門", area:"橋本", map:"https://www.google.com/maps?q=柿右エ門+橋本&output=embed"},
+  {id:"shimakura", name:"BAR SHIMAKURA", area:"橋本", map:"https://www.google.com/maps?q=BAR+SHIMAKURA&output=embed"},
+
+  // 大阪
+  {id:"ajito", name:"あじと", area:"大阪", map:"https://www.google.com/maps?q=あじと+大阪&output=embed"},
+  {id:"jutchuhakku", name:"十忠八九", area:"大阪", map:"https://www.google.com/maps?q=十忠八九+大阪&output=embed"},
+  {id:"hachimaru", name:"ハチマル蒲鉾 なんば千日前店", area:"大阪", map:"https://www.google.com/maps?q=ハチマル蒲鉾+なんば千日前&output=embed"},
+  {id:"sasaya", name:"備長炭やきとり 笹屋", area:"大阪", map:"https://www.google.com/maps?q=備長炭やきとり+笹屋&output=embed"},
+  {id:"sakanameshiya", name:"サカナのめしや 天満", area:"大阪", map:"https://www.google.com/maps?q=サカナのめしや+天満&output=embed"},
+  {id:"standfuji", name:"スタンドふじ 本店", area:"大阪", map:"https://www.google.com/maps?q=スタンドふじ+本店&output=embed"},
+  {id:"jiraku", name:"なにわ 而楽", area:"大阪", map:"https://www.google.com/maps?q=なにわ+而楽&output=embed"}
 ];
 
-// リアルタイム反映
-shops.forEach(id=>{
-  db.collection("votes").doc(id).onSnapshot(doc=>{
-    const v = doc.exists ? doc.data().count : 0;
-    document.getElementById(id).textContent = v + " 票";
+const votes = {};
+const container = document.getElementById("shops");
+const myVoteKey = "my_vote_2025";
+
+/* 👍 投票処理（1人1票＋変更OK） */
+function vote(id){
+  const prev = localStorage.getItem(myVoteKey);
+
+  if(prev === id){
+    // 取り消し
+    db.collection("votes").doc(id)
+      .set({count: firebase.firestore.FieldValue.increment(-1)}, {merge:true});
+    localStorage.removeItem(myVoteKey);
+    return;
+  }
+
+  if(prev){
+    // 前の票を減らす
+    db.collection("votes").doc(prev)
+      .set({count: firebase.firestore.FieldValue.increment(-1)}, {merge:true});
+  }
+
+  // 新しい票を入れる
+  db.collection("votes").doc(id)
+    .set({count: firebase.firestore.FieldValue.increment(1)}, {merge:true});
+
+  localStorage.setItem(myVoteKey, id);
+}
+
+/* 🎨 描画 */
+function render(){
+  const list = SHOPS.map(s=>({
+    ...s,
+    count: votes[s.id] || 0
+  }));
+
+  const max = Math.max(...list.map(s=>s.count), 0);
+  const voted = list.filter(s=>s.count>0).sort((a,b)=>b.count-a.count);
+  const notVoted = list.filter(s=>s.count===0)
+    .sort((a,b)=>a.area.localeCompare(b.area,"ja"));
+
+  container.innerHTML = "";
+
+  if(voted.length){
+    container.insertAdjacentHTML("beforeend", `<div class="section">👍 投票あり</div>`);
+    voted.forEach(s=>draw(s, s.count===max && max>0));
+  }
+
+  container.insertAdjacentHTML("beforeend", `<div class="section">📍 未投票</div>`);
+  notVoted.forEach(s=>draw(s, false));
+}
+
+function draw(s, isTop){
+  const myVote = localStorage.getItem(myVoteKey);
+  const votedByMe = myVote === s.id;
+
+  container.insertAdjacentHTML("beforeend",`
+    <div class="card">
+      <h3>${s.name}${isTop ? '<span class="crown">👑</span>' : ''}</h3>
+      <iframe src="${s.map}" loading="lazy"></iframe>
+      <div class="vote">
+        <button class="${votedByMe?'cancel':''}" onclick="vote('${s.id}')">
+          ${votedByMe ? '❌ 取り消す' : '👍 投票'}
+        </button>
+        <span class="count">${s.count} 票</span>
+      </div>
+    </div>
+  `);
+}
+
+/* 🔄 リアルタイム同期 */
+SHOPS.forEach(s=>{
+  db.collection("votes").doc(s.id).onSnapshot(doc=>{
+    votes[s.id] = doc.exists ? doc.data().count : 0;
+    render();
   });
 });
-
-// 投票
-function vote(shop){
-  const ref = db.collection("votes").doc(shop);
-  ref.set({count:firebase.firestore.FieldValue.increment(1)}, {merge:true});
-}
 </script>
 
 </body>
