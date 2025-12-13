@@ -1,328 +1,165 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>予定管理</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>25年忘年会 投票</title>
 
-<!-- Supabase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        background: #fafafa;
-        margin: 0;
-        padding: 20px;
-    }
-
-    h2 {
-        font-size: 22px;
-        margin-top: 40px;
-        margin-bottom: 15px;
-        padding-left: 6px;
-    }
-
-    .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 4px 10px;
-        margin-bottom: 16px;
-    }
-
-    .title-center {
-        text-align: center;
-        flex: 1;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .edit-name-btn {
-        font-size: 15px;
-        color: black;
-        text-decoration: underline;
-        cursor: pointer;
-        white-space: nowrap;
-    }
-
-    .section-title {
-        font-size: 20px;
-        margin-bottom: 8px;
-        padding-left: 18px; /* ← 少し右にズラした */
-        font-weight: 600;
-    }
-
-    .form-box {
-        background: white;
-        padding: 16px;
-        border-radius: 14px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    input, select {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        margin-bottom: 12px;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        border-radius: 10px;
-        background: #333;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    .event-card {
-        background: white;
-        padding: 16px;
-        border-radius: 14px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .event-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 17px;
-        margin-bottom: 6px;
-    }
-
-    .event-title {
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .event-sub {
-        color: #555;
-        font-size: 14px;
-    }
-
-    .btn-row {
-        display: flex;
-        gap: 8px;
-        margin-top: 12px;
-    }
-
-    .btn-join {
-        flex: 1;
-        background: #007aff;
-    }
-
-    .btn-cancel {
-        flex: 1;
-        background: #ff3b30;
-    }
-
-    /* ポップアップ */
-    #popup {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #333;
-        color: white;
-        padding: 14px 22px;
-        border-radius: 10px;
-        display: none;
-        z-index: 9999;
-        font-size: 16px;
-    }
-
+body{
+  font-family:-apple-system,BlinkMacSystemFont;
+  margin:0;
+  padding:16px;
+  background:#fafafa;
+}
+h2{margin-top:40px;}
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.vote{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:8px;
+}
+button{
+  padding:10px 16px;
+  border:none;
+  border-radius:20px;
+  background:#000;
+  color:#fff;
+  font-size:14px;
+}
+.count{
+  font-size:14px;
+}
+iframe{
+  width:100%;
+  height:220px;
+  border:0;
+  border-radius:10px;
+}
 </style>
 </head>
+
 <body>
 
-<div id="popup"></div>
+<h1>🍻 25年忘年会 店投票</h1>
 
-<div class="header-row">
-    <div class="title-center">飯行く日</div>
-    <div class="edit-name-btn" onclick="openNameEdit()">表示名修正</div>
+<h2>🔵 橋本</h2>
+
+<div class="card" data-shop="kirin">
+  <h3>きりん</h3>
+  <iframe src="【ここにGoogleマップ埋め込みURL】"></iframe>
+  <div class="vote">
+    <button onclick="vote('kirin')">👍 投票</button>
+    <span class="count" id="kirin">0 票</span>
+  </div>
 </div>
 
-<!-- 表示名入力ページ（初回のみ表示） -->
-<div id="nameSetupPage" style="display:none;">
-    <h2>表示名を入力</h2>
-    <div class="form-box">
-        <input id="displayNameInput" placeholder="例：山田" />
-        <button onclick="saveDisplayName()">保存</button>
-    </div>
+<div class="card" data-shop="mikura">
+  <h3>美蔵</h3>
+  <iframe src="【MAP】"></iframe>
+  <div class="vote">
+    <button onclick="vote('mikura')">👍 投票</button>
+    <span class="count" id="mikura">0 票</span>
+  </div>
 </div>
 
-<!-- 表示名変更ページ -->
-<div id="nameEditPage" style="display:none;">
-    <h2>表示名を修正</h2>
-    <div class="form-box">
-        <input id="editNameInput" />
-        <button onclick="updateDisplayName()">変更</button>
-    </div>
+<div class="card" data-shop="kakiemon">
+  <h3>柿右エ門</h3>
+  <iframe src="【MAP】"></iframe>
+  <div class="vote">
+    <button onclick="vote('kakiemon')">👍 投票</button>
+    <span class="count" id="kakiemon">0 票</span>
+  </div>
 </div>
 
-<!-- メインページ -->
-<div id="mainPage">
+<div class="card" data-shop="shimakura">
+  <h3>BAR SHIMAKURA</h3>
+  <iframe src="【MAP】"></iframe>
+  <div class="vote">
+    <button onclick="vote('shimakura')">👍 投票</button>
+    <span class="count" id="shimakura">0 票</span>
+  </div>
+</div>
 
-    <h2 class="section-title">新しく追加</h2>
-    <div class="form-box">
-        <input type="text" id="newTitle" placeholder="タイトル（例：中学同窓会）" />
-        <select id="newPlace">
-            <option value="橋本">橋本</option>
-            <option value="大阪">大阪</option>
-            <option value="京都">京都</option>
-            <option value="どこでも">どこでも</option>
-        </select>
-        <input type="date" id="newDate" />
-        <select id="newTime">
-            <option value="昼">昼</option>
-            <option value="夕方">夕方</option>
-            <option value="夜">夜</option>
-        </select>
-        <button onclick="createEvent()">作成して参加</button>
-    </div>
+<h2>🔴 大阪</h2>
 
-    <h2 class="section-title">進行中</h2>
-    <div id="eventList"></div>
+<div class="card" data-shop="jutchuhakku">
+  <h3>十忠八九</h3>
+  <iframe src="【MAP】"></iframe>
+  <div class="vote">
+    <button onclick="vote('jutchuhakku')">👍 投票</button>
+    <span class="count" id="jutchuhakku">0 票</span>
+  </div>
+</div>
+
+<div class="card" data-shop="hachimaru">
+  <h3>ハチマル蒲鉾</h3>
+  <iframe src="【MAP】"></iframe>
+  <div class="vote">
+    <button onclick="vote('hachimaru')">👍 投票</button>
+    <span class="count" id="hachimaru">0 票</span>
+  </div>
+</div>
+
+<div class="card" data-shop="sasaya">
+  <h3>笹屋</h3>
+  <iframe src="【MAP】"></iframe>
+  <div class="vote">
+    <button onclick="vote('sasaya')">👍 投票</button>
+    <span class="count" id="sasaya">0 票</span>
+  </div>
+</div>
+
+<div class="card" data-shop="ajito">
+  <h3>DINING あじと</h3>
+  <iframe src="【MAP】"></iframe>
+  <div class="vote">
+    <button onclick="vote('ajito')">👍 投票</button>
+    <span class="count" id="ajito">0 票</span>
+  </div>
 </div>
 
 <script>
-const SUPABASE_URL = "https://agbfcpaxsrgebxjtkvdh.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnYmZjcGF4c3JnZWJ4anRrdmRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxODY4ODAsImV4cCI6MjA4MDc2Mjg4MH0.8Mp6MotCT5z2rTd0iIWhXz3aV696ijBEkYk9tVIYpgw";
-
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-/* ---------- 初期表示 ---------- */
-window.onload = async () => {
-    const name = localStorage.getItem("displayName");
-    if (!name) {
-        document.getElementById("nameSetupPage").style.display = "block";
-        return;
-    }
-    loadEvents();
+// 🔥 Firebase 設定（ここ差し替え）
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID"
 };
 
-/* ----------- ポップアップ ---------- */
-function showPopup(msg) {
-    const p = document.getElementById("popup");
-    p.innerText = msg;
-    p.style.display = "block";
-    setTimeout(() => { p.style.display = "none"; }, 1500);
-}
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-/* ----------- 表示名保存 ---------- */
-function saveDisplayName() {
-    const name = document.getElementById("displayNameInput").value.trim();
-    if (!name) return;
+// 初期化
+const shops = [
+  "kirin","mikura","kakiemon","shimakura",
+  "jutchuhakku","hachimaru","sasaya","ajito"
+];
 
-    localStorage.setItem("displayName", name);
+// リアルタイム反映
+shops.forEach(id=>{
+  db.collection("votes").doc(id).onSnapshot(doc=>{
+    const v = doc.exists ? doc.data().count : 0;
+    document.getElementById(id).textContent = v + " 票";
+  });
+});
 
-    document.getElementById("nameSetupPage").style.display = "none";
-    loadEvents();
-}
-
-/* ----------- 表示名修正 ---------- */
-function openNameEdit() {
-    const current = localStorage.getItem("displayName") || "";
-    document.getElementById("editNameInput").value = current;
-
-    document.getElementById("mainPage").style.display = "none";
-    document.getElementById("nameEditPage").style.display = "block";
-}
-
-function updateDisplayName() {
-    const name = document.getElementById("editNameInput").value.trim();
-    if (!name) return;
-
-    localStorage.setItem("displayName", name);
-
-    document.getElementById("nameEditPage").style.display = "none";
-    document.getElementById("mainPage").style.display = "block";
-
-    showPopup("名前を変更しました");
-}
-
-/* ----------- イベント作成 ---------- */
-async function createEvent() {
-    const title = document.getElementById("newTitle").value.trim();
-    const place = document.getElementById("newPlace").value;
-    const date = document.getElementById("newDate").value;
-    const time = document.getElementById("newTime").value;
-    const name = localStorage.getItem("displayName");
-
-    if (!title || !date || !name) return;
-
-    const { error } = await supabase.from("events").insert({
-        title,
-        place,
-        date,
-        time,
-        members: [name]
-    });
-
-    if (!error) {
-        showPopup("追加しました");
-        setTimeout(() => location.reload(), 800);
-    }
-}
-
-/* ----------- 参加/取り消し ---------- */
-async function toggleJoin(eventData, join) {
-    const name = localStorage.getItem("displayName");
-    let members = eventData.members || [];
-
-    if (join) {
-        if (!members.includes(name)) members.push(name);
-    } else {
-        members = members.filter(m => m !== name);
-    }
-
-    const { error } = await supabase
-        .from("events")
-        .update({ members })
-        .eq("id", eventData.id);
-
-    if (!error) {
-        showPopup("変更しました");
-        setTimeout(() => location.reload(), 500);
-    }
-}
-
-/* ----------- イベント一覧 ---------- */
-async function loadEvents() {
-    const { data } = await supabase.from("events").select("*").order("id", { ascending: false });
-
-    const list = document.getElementById("eventList");
-    list.innerHTML = "";
-
-    data.forEach(ev => {
-        const isJoined = (ev.members || []).includes(localStorage.getItem("displayName"));
-
-        list.innerHTML += `
-            <div class="event-card">
-                <div class="event-header">
-                    <div class="event-title">${ev.title} 📝</div>
-                </div>
-                <div class="event-sub">${ev.date} / ${ev.time} / ${ev.place}</div>
-
-                <div class="event-sub">参加者：${(ev.members || []).join("、")}</div>
-
-                <div class="btn-row">
-                    <button class="btn-join" onclick="toggleJoin(${JSON.stringify(ev)}, true)">参加</button>
-                    <button class="btn-cancel" onclick="toggleJoin(${JSON.stringify(ev)}, false)">取り消し</button>
-                </div>
-            </div>
-        `;
-    });
+// 投票
+function vote(shop){
+  const ref = db.collection("votes").doc(shop);
+  ref.set({count:firebase.firestore.FieldValue.increment(1)}, {merge:true});
 }
 </script>
+
 </body>
 </html>
