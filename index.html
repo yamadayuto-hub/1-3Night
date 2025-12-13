@@ -1,66 +1,71 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>1/3夜 店投票</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>25年忘年会 投票</title>
 
 <style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+body{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
   background:#f5f5f5;
   margin:0;
-  padding:16px;
+  padding:12px;
 }
-h1 {
+h1{
   text-align:center;
+  margin-bottom:16px;
 }
-.card {
+.card{
   background:#fff;
   border-radius:12px;
-  padding:12px;
-  margin-bottom:16px;
-  box-shadow:0 2px 6px rgba(0,0,0,.1);
+  padding:10px 12px;
+  margin-bottom:10px;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
 }
-iframe {
-  width:100%;
-  height:220px;
-  border:0;
-  border-radius:8px;
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-.vote {
+.name{
+  font-weight:600;
+  font-size:15px;
+}
+.address{
+  font-size:13px;
+  color:#007aff;
+  margin-top:4px;
+  display:inline-block;
+  text-decoration:none;
+}
+.actions{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-top:8px;
 }
-button {
+button{
+  border:none;
+  border-radius:16px;
+  padding:6px 14px;
+  font-size:13px;
   background:#007aff;
   color:#fff;
-  border:none;
-  border-radius:20px;
-  padding:8px 14px;
-  font-size:14px;
 }
-button.cancel {
+button.cancel{
   background:#999;
 }
-.count {
+.count{
   font-weight:bold;
-}
-.section {
-  margin:24px 0 8px;
-  font-weight:bold;
-}
-.crown {
-  margin-left:6px;
+  font-size:13px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🍺1/3夜 店投票</h1>
+<h1>🍺 25年忘年会 投票</h1>
 <div id="shops"></div>
 
 <!-- Firebase -->
@@ -68,112 +73,98 @@ button.cancel {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* 🔑 Firebase Config（あなたのやつ） */
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: "AIzaSyAtMj5B1vPwvNfvRu1UOyPArSao-rHs_Vw",
   authDomain: "night-4be0e.firebaseapp.com",
   projectId: "night-4be0e",
   storageBucket: "night-4be0e.firebasestorage.app",
   messagingSenderId: "128727919874",
   appId: "1:128727919874:web:0798a05e46931df554661b"
-};
+});
 
-firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const KEY = "my_vote_2025";
 
-/* 🏮 店舗 */
 const SHOPS = [
   // 橋本
-  {id:"kirin", name:"きりん", area:"橋本", map:"https://www.google.com/maps?q=きりん+橋本&output=embed"},
-  {id:"kakiemon", name:"柿右エ門", area:"橋本", map:"https://www.google.com/maps?q=柿右エ門+橋本&output=embed"},
-  {id:"shimakura", name:"BAR SHIMAKURA", area:"橋本", map:"https://www.google.com/maps?q=BAR+SHIMAKURA&output=embed"},
+  {id:"kirin", area:"橋本", name:"きりん", address:"〒648-0096 和歌山県橋本市御幸辻１３５−１"},
+  {id:"kakiemon", area:"橋本", name:"柿右エ門", address:"〒648-0075 和歌山県橋本市さつき台１丁目４７８−１６"},
+  {id:"shimakura", area:"橋本", name:"BAR SHIMAKURA", address:"〒648-0025 和歌山県橋本市向副１００１"},
 
   // 大阪
-  {id:"ajito", name:"DININGあじと", area:"大阪", map:"https://www.google.com/maps?q=あじと+大阪&output=embed"},
-  {id:"jutchuhakku", name:"みなみの十忠八九", area:"大阪", map:"https://www.google.com/maps?q=十忠八九+大阪&output=embed"},
-  {id:"hachimaru", name:"ハチマル蒲鉾 なんば千日前店", area:"大阪", map:"https://www.google.com/maps?q=ハチマル蒲鉾+なんば千日前&output=embed"},
-  {id:"sasaya", name:"備長炭やきとり 笹屋", area:"大阪", map:"https://www.google.com/maps?q=備長炭やきとり+笹屋&output=embed"},
-  {id:"sakanameshiya", name:"サカナのめしや 天満", area:"大阪", map:"https://www.google.com/maps?q=サカナのめしや+天満&output=embed"},
-  {id:"standfuji", name:"スタンドふじ 本店", area:"大阪", map:"https://www.google.com/maps?q=スタンドふじ+本店&output=embed"},
-  {id:"jiraku", name:"なにわ 而楽", area:"大阪", map:"https://www.google.com/maps?q=なにわ+而楽&output=embed"}
+  {id:"ajito", area:"大阪", name:"DININGあじと", address:"〒542-0075 大阪府大阪市中央区難波千日前４−２０"},
+  {id:"jutchuhakku", area:"大阪", name:"みなみの十忠八九", address:"〒542-0076 大阪府大阪市中央区難波４丁目２−６ トシヒサビル 1F・2F"},
+  {id:"hachimaru", area:"大阪", name:"ハチマル蒲鉾 なんば千日前店", address:"〒542-0074 大阪府大阪市中央区千日前２丁目３−３３"},
+  {id:"sasaya", area:"大阪", name:"備長炭やきとり 笹屋", address:"〒542-0074 大阪府大阪市中央区千日前１丁目８−１０"},
+  {id:"standfuji", area:"大阪", name:"スタンドふじ 本店", address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目５−１ ルシアスビル B１F"},
+  {id:"tenpan", area:"大阪", name:"サカナのめしや 天端", address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目６−１ ヴィアあべのウォーク 1F 121"},
+  {id:"jiraku", area:"大阪", name:"なにわ 而楽", address:"〒530-0012 大阪府大阪市北区芝田２丁目８−１１ 1階"}
 ];
 
 const votes = {};
-const container = document.getElementById("shops");
-const myVoteKey = "my_vote_2025";
+const el = document.getElementById("shops");
 
-/* 👍 投票処理（1人1票＋変更OK） */
 function vote(id){
-  const prev = localStorage.getItem(myVoteKey);
+  const prev = localStorage.getItem(KEY);
 
   if(prev === id){
-    // 取り消し
     db.collection("votes").doc(id)
-      .set({count: firebase.firestore.FieldValue.increment(-1)}, {merge:true});
-    localStorage.removeItem(myVoteKey);
+      .set({count:firebase.firestore.FieldValue.increment(-1)}, {merge:true});
+    localStorage.removeItem(KEY);
     return;
   }
 
   if(prev){
-    // 前の票を減らす
     db.collection("votes").doc(prev)
-      .set({count: firebase.firestore.FieldValue.increment(-1)}, {merge:true});
+      .set({count:firebase.firestore.FieldValue.increment(-1)}, {merge:true});
   }
 
-  // 新しい票を入れる
   db.collection("votes").doc(id)
-    .set({count: firebase.firestore.FieldValue.increment(1)}, {merge:true});
-
-  localStorage.setItem(myVoteKey, id);
+    .set({count:firebase.firestore.FieldValue.increment(1)}, {merge:true});
+  localStorage.setItem(KEY, id);
 }
 
-/* 🎨 描画 */
 function render(){
-  const list = SHOPS.map(s=>({
-    ...s,
-    count: votes[s.id] || 0
-  }));
+  const list = SHOPS.map(s=>({...s, count:votes[s.id]||0}));
+  const max = Math.max(...list.map(s=>s.count),0);
 
-  const max = Math.max(...list.map(s=>s.count), 0);
-  const voted = list.filter(s=>s.count>0).sort((a,b)=>b.count-a.count);
-  const notVoted = list.filter(s=>s.count===0)
-    .sort((a,b)=>a.area.localeCompare(b.area,"ja"));
+  const top = list.filter(s=>s.count===max && max>0);
+  const rest = list.filter(s=>s.count!==max || max===0);
 
-  container.innerHTML = "";
+  rest.sort((a,b)=>a.area.localeCompare(b.area,"ja"));
 
-  if(voted.length){
-    container.insertAdjacentHTML("beforeend", `<div class="section">👍 投票あり</div>`);
-    voted.forEach(s=>draw(s, s.count===max && max>0));
-  }
+  el.innerHTML = "";
 
-  container.insertAdjacentHTML("beforeend", `<div class="section">📍 未投票</div>`);
-  notVoted.forEach(s=>draw(s, false));
-}
+  [...top, ...rest].forEach(s=>{
+    const mine = localStorage.getItem(KEY) === s.id;
+    const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}`;
 
-function draw(s, isTop){
-  const myVote = localStorage.getItem(myVoteKey);
-  const votedByMe = myVote === s.id;
+    el.insertAdjacentHTML("beforeend",`
+      <div class="card">
+        <div class="top">
+          <div class="name">${s.name}${s.count===max && max>0 ? " 👑" : ""}</div>
+          <div class="count">${s.count}票</div>
+        </div>
 
-  container.insertAdjacentHTML("beforeend",`
-    <div class="card">
-      <h3>${s.name}${isTop ? '<span class="crown">👑</span>' : ''}</h3>
-      <iframe src="${s.map}" loading="lazy"></iframe>
-      <div class="vote">
-        <button class="${votedByMe?'cancel':''}" onclick="vote('${s.id}')">
-          ${votedByMe ? '❌ 取り消す' : '👍 投票'}
-        </button>
-        <span class="count">${s.count} 票</span>
+        <a class="address" href="${mapLink}" target="_blank">
+          ${s.address}
+        </a>
+
+        <div class="actions">
+          <button class="${mine?"cancel":""}" onclick="vote('${s.id}')">
+            ${mine ? "取消す" : "👍 投票する"}
+          </button>
+        </div>
       </div>
-    </div>
-  `);
+    `);
+  });
 }
 
-/* 🔄 リアルタイム同期 */
-SHOPS.forEach(s=>{
-  db.collection("votes").doc(s.id).onSnapshot(doc=>{
-    votes[s.id] = doc.exists ? doc.data().count : 0;
-    render();
+db.collection("votes").onSnapshot(snap=>{
+  snap.forEach(doc=>{
+    votes[doc.id] = doc.data().count || 0;
   });
+  render();
 });
 </script>
 
