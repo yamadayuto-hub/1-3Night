@@ -32,35 +32,36 @@ h1{
   font-weight:600;
   font-size:15px;
 }
+.address-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:4px;
+}
 .address{
   font-size:13px;
   color:#000;
-  margin-top:4px;
 }
-.actions{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:8px;
-}
-.left-actions{
+.icons{
   display:flex;
   gap:8px;
 }
-a.map-link{
-  font-size:13px;
-  padding:6px 12px;
-  border-radius:16px;
-  background:#eee;
-  color:#000;
-  text-decoration:none;
+.icons img{
+  width:18px;
+  height:18px;
+  display:block;
+}
+.actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 button{
   border:none;
   border-radius:16px;
-  padding:6px 14px;
+  padding:6px 16px;
   font-size:13px;
-  background:#007aff;
+  background:#555;
   color:#fff;
 }
 button.cancel{
@@ -98,52 +99,50 @@ const KEY = "my_vote_2025";
 const SHOPS = [
   {
     id:"kirin",
-    area:"橋本",
     name:"きりん",
     address:"〒648-0096 和歌山県橋本市御幸辻１３５−１",
     map:"https://maps.app.goo.gl/mm8BJHzULNYnnMS37?g_st=ic"
   },
   {
     id:"mikura",
-    area:"橋本",
     name:"海鮮ダイニング 美蔵 ホテルルートイン橋本店",
     address:"〒648-0073 和歌山県橋本市市脇４丁目１０−２８",
     map:"https://maps.app.goo.gl/2HxXb64kuGyFZfA98?g_st=ic"
   },
   {
     id:"tenma",
-    area:"大阪",
     name:"サカナのめしや 天端",
-    address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目６−１ ヴィアあべのウォーク 1F 121",
-    map:"https://maps.app.goo.gl/WYthW7YmEkxJ416M8?g_st=ic"
+    address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目６−１",
+    map:"https://maps.app.goo.gl/WYthW7YmEkxJ416M8?g_st=ic",
+    insta:"https://www.instagram.com/sakananomeshiya_tenhashi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
   },
   {
     id:"standfuji",
-    area:"大阪",
     name:"スタンドふじ 本店",
-    address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目５−１ ルシアスビル B１F",
-    map:"https://maps.app.goo.gl/EVydRo8XDyohRy8r7?g_st=ic"
+    address:"〒545-0052 大阪府大阪市阿倍野区阿倍野筋１丁目５−１",
+    map:"https://maps.app.goo.gl/EVydRo8XDyohRy8r7?g_st=ic",
+    insta:"https://www.instagram.com/explore/locations/1943103959241819/"
   },
   {
     id:"ajito",
-    area:"大阪",
     name:"DINING あじと",
     address:"〒542-0075 大阪府大阪市中央区難波千日前４−２０",
-    map:"https://maps.app.goo.gl/BycFBdmiifcyrqmJA?g_st=ic"
+    map:"https://maps.app.goo.gl/BycFBdmiifcyrqmJA?g_st=ic",
+    insta:"https://www.instagram.com/dining.ajito?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
   },
   {
     id:"sasaya",
-    area:"大阪",
     name:"備長炭やきとり 笹屋",
     address:"〒542-0074 大阪府大阪市中央区千日前１丁目８−１０",
-    map:"https://maps.app.goo.gl/yWGcjjNDbmc6Y2pdA?g_st=ic"
+    map:"https://maps.app.goo.gl/yWGcjjNDbmc6Y2pdA?g_st=ic",
+    insta:"https://www.instagram.com/explore/locations/124755854870853/sasaya/"
   },
   {
     id:"jutchuhakku",
-    area:"大阪",
     name:"みなみの十忠八九",
-    address:"〒542-0076 大阪府大阪市中央区難波４丁目２−６ トシヒサビル 1F・2F",
-    map:"https://maps.app.goo.gl/ioRoMH4eQ4NpqqJA7?g_st=ic"
+    address:"〒542-0076 大阪府大阪市中央区難波４丁目２−６",
+    map:"https://maps.app.goo.gl/ioRoMH4eQ4NpqqJA7?g_st=ic",
+    insta:"https://www.instagram.com/explore/locations/100481826300980/"
   }
 ];
 
@@ -171,35 +170,35 @@ function vote(id){
 }
 
 function render(){
-  const list = SHOPS.map(s=>({...s, count:votes[s.id]||0}));
-  const max = Math.max(...list.map(s=>s.count),0);
-
-  const top = list.filter(s=>s.count===max && max>0);
-  const rest = list.filter(s=>s.count!==max || max===0);
-
-  rest.sort((a,b)=>a.area.localeCompare(b.area,"ja"));
-
   el.innerHTML = "";
 
-  [...top, ...rest].forEach(s=>{
+  SHOPS.forEach(s=>{
     const mine = localStorage.getItem(KEY) === s.id;
+    const count = votes[s.id] || 0;
 
     el.insertAdjacentHTML("beforeend",`
       <div class="card">
         <div class="top">
-          <div class="name">${s.name}${s.count===max && max>0 ? " 👑" : ""}</div>
-        </div>
-
-        <div class="address">${s.address}</div>
-
-        <div class="actions">
-          <div class="left-actions">
-            <a class="map-link" href="${s.map}" target="_blank">Googleマップで開く</a>
+          <div class="name">${s.name}</div>
+          <div class="actions">
+            <div class="count">${count}票</div>
             <button class="${mine?"cancel":""}" onclick="vote('${s.id}')">
-              ${mine ? "取り消す" : "👍 投票する"}
+              ${mine ? "取り消す" : "投票する"}
             </button>
           </div>
-          <div class="count">${s.count}票</div>
+        </div>
+
+        <div class="address-row">
+          <div class="address">${s.address}</div>
+          <div class="icons">
+            <a href="${s.map}" target="_blank">
+              <img src="google-maps-new.png" alt="Google Maps">
+            </a>
+            ${s.insta ? `
+              <a href="${s.insta}" target="_blank">
+                <img src="instagram.png" alt="Instagram">
+              </a>` : ""}
+          </div>
         </div>
       </div>
     `);
