@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1/3夜 投票</title>
+<title>25年忘年会 投票</title>
 
 <style>
 body{
@@ -34,16 +34,26 @@ h1{
 }
 .address{
   font-size:13px;
-  color:#007aff;
+  color:#000;
   margin-top:4px;
-  display:inline-block;
-  text-decoration:none;
 }
 .actions{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-top:8px;
+}
+.left-actions{
+  display:flex;
+  gap:8px;
+}
+a.map-link{
+  font-size:13px;
+  padding:6px 12px;
+  border-radius:16px;
+  background:#eee;
+  color:#000;
+  text-decoration:none;
 }
 button{
   border:none;
@@ -65,7 +75,7 @@ button.cancel{
 
 <body>
 
-<h1>🍺1/3夜 投票</h1>
+<h1>🍺 25年忘年会 投票</h1>
 <div id="shops"></div>
 
 <!-- Firebase -->
@@ -86,7 +96,6 @@ const db = firebase.firestore();
 const KEY = "my_vote_2025";
 
 const SHOPS = [
-  // 橋本
   {
     id:"kirin",
     area:"橋本",
@@ -101,8 +110,6 @@ const SHOPS = [
     address:"〒648-0073 和歌山県橋本市市脇４丁目１０−２８",
     map:"https://maps.app.goo.gl/2HxXb64kuGyFZfA98?g_st=ic"
   },
-
-  // 大阪
   {
     id:"tenma",
     area:"大阪",
@@ -181,17 +188,18 @@ function render(){
       <div class="card">
         <div class="top">
           <div class="name">${s.name}${s.count===max && max>0 ? " 👑" : ""}</div>
-          <div class="count">${s.count}票</div>
         </div>
 
-        <a class="address" href="${s.map}" target="_blank">
-          ${s.address}
-        </a>
+        <div class="address">${s.address}</div>
 
         <div class="actions">
-          <button class="${mine?"cancel":""}" onclick="vote('${s.id}')">
-            ${mine ? "取り消す" : "👍 投票する"}
-          </button>
+          <div class="left-actions">
+            <a class="map-link" href="${s.map}" target="_blank">Googleマップで開く</a>
+            <button class="${mine?"cancel":""}" onclick="vote('${s.id}')">
+              ${mine ? "取り消す" : "👍 投票する"}
+            </button>
+          </div>
+          <div class="count">${s.count}票</div>
         </div>
       </div>
     `);
